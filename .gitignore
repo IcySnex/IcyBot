@@ -1,0 +1,11 @@
+.vs/
+IcyBot.Console/bin/
+IcyBot.Api/bin/
+bin
+IcyBot.Console/obj/
+IcyBot.Api/obj/
+obj
+packages
+*.suo
+*.user
+_ReSharper.*
