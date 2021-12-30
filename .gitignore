@@ -1,9 +1,11 @@
 .vs/
 IcyBot.Console/bin/
 IcyBot.Api/bin/
+IcyBot.Logic/bin/
 bin
 IcyBot.Console/obj/
 IcyBot.Api/obj/
+IcyBot.Logic/obj/
 obj
 packages
 *.suo
