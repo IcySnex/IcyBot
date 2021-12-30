@@ -1,9 +1,9 @@
-﻿namespace IcyBot.Console.Helpers.Models
+﻿namespace IcyBot.Logic.Helpers.Models
 {
-    public class Config
+    public class ConfigModel
     {
-        public static Config LoadFromFile(string Path) =>
-            Json.Deserialize<Config>(Path);
+        public static ConfigModel LoadFromFile(string Path) =>
+            Json.Deserialize<ConfigModel>(Path);
 
         public string Token { get; set; } = "?";
         public string? Status { get; set; } = "ur mom";

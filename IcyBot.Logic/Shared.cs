@@ -1,10 +1,10 @@
-﻿using IcyBot.Console.Helpers.Models;
+﻿using IcyBot.Logic.Helpers.Models;
 
-namespace IcyBot.Console.Helpers
+namespace IcyBot.Logic
 {
     public class Shared
     {
-        public static Config Config { get; set; } = Config.LoadFromFile("Config.json");
+        public static ConfigModel Config { get; set; } = ConfigModel.LoadFromFile("Config.json");
 
         public static DiscordClient? DiscordClient { get; set; }
         public static DiscordConfiguration DiscordConfig { get; } = new()

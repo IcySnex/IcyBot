@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<OutputType>Exe</OutputType>
 		<TargetFramework>net6.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
@@ -22,15 +21,10 @@
 		<Using Include="DSharpPlus.CommandsNext.Attributes" />
 		<Using Include="DSharpPlus.Entities" />
 		<Using Include="DSharpPlus.Entities" />
-		<Using Include="IcyBot.Console" />
 		<Using Include="IcyBot.Logic" />
 		<Using Include="IcyBot.Logic.Helpers" />
 		<Using Include="IcyBot.Logic.Enums" />
 		<Using Include="IcyBot.Logic.Models" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Include="..\IcyBot.Logic\IcyBot.Logic.csproj" />
 	</ItemGroup>
 
 </Project>

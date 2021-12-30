@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace IcyBot.Console.Helpers
+namespace IcyBot.Logic.Helpers
 {
     public class Json
     {

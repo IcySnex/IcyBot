@@ -1,4 +1,4 @@
-﻿namespace IcyBot.Console
+﻿namespace IcyBot.Logic
 {
     public static class Handlers
     {
@@ -39,7 +39,7 @@
             sender.VoiceServerUpdated += VoiceServerUpdated;
             sender.VoiceStateUpdated += VoiceStateUpdated;
 
-            Log.Info("[Logs] Added all handlers.", ConsoleColor.Yellow);
+            Log.Info("Added all handlers.", ConsoleColor.Yellow, "Logs");
         }
 
         #region Channel

@@ -1,4 +1,4 @@
-﻿namespace IcyBot.Console.Helpers
+﻿namespace IcyBot.Logic.Helpers
 {
     public class Imaging
     {
