@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Text;
 using IcyBot.Console.CommandsNext;
+using IcyBot.Logic.Helpers.Models;
 
 namespace IcyBot.Console
 {
@@ -25,6 +26,7 @@ namespace IcyBot.Console
             Shared.CommandsNext.CommandErrored += OnCommandErrored;
             Shared.CommandsNext.CommandExecuted += OnCommandExecuted;
             Shared.CommandsNext.RegisterCommands<Misc>();
+            Shared.Help = Logic.Commands.Misc.Help();
             Log.Info("Registered CommandsNext");
 
             await Shared.DiscordClient.ConnectAsync(new(Shared.Config.Status, ActivityType.Playing));
@@ -53,10 +55,26 @@ namespace IcyBot.Console
 
         private static Task OnCommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
         {
-            if (e.Exception.Message != "Specified command was not found.")
+            if (e.Exception.Message == "Specified command was not found.")
+                return Task.CompletedTask;
+
+            DiscordEmbedBuilder Bui = Builder.New(Color:new(Shared.Config.Colors.Error));
+            switch (e.Exception.Message)
             {
-                Log.Error($"[{e.Context.User.Username}#{e.Context.User.Discriminator}] [{e.Context.Channel.Name}] [Args: {e.Context.RawArgumentString}] Command failed to execute\n{e.Exception.Message}", "CommandsNext/" + e.Command.Module.ModuleType.Name, e.Command.Name);
+                case "One or more pre-execution checks failed.":
+                    Bui.WithAuthor("Damn bro, u aint got no permissions, go fuck urself");
+                    break;
+                case "Could not find a suitable overload for the command.":
+                    Bui.WithAuthor("fool doesnt even know how to use this command lmao");
+                    // DESCRIPTION TO COMMAND HOW TO USE
+                    break;
+                default:
+                    Bui.WithAuthor(e.Exception.Message);
+                    // DESCRIPTION TO COMMAND HOW TO USE
+                    break;
             }
+            e.Context.RespondAsync(Bui);
+            Log.Error($"[{e.Context.User.Username}#{e.Context.User.Discriminator}] [{e.Context.Channel.Name}] [Args: {e.Context.RawArgumentString}] Command failed to execute\n{e.Exception.Message}", "CommandsNext/" + e.Command.Module.ModuleType.Name, e.Command.Name);
             return Task.CompletedTask;
         }
         private static Task OnCommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)

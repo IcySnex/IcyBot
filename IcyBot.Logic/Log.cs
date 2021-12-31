@@ -20,8 +20,8 @@ namespace IcyBot.Logic
 
         public static void Error(string Message, [CallerFilePath] string Caller = "", [CallerMemberName] string Method = "") =>
             Invoke(Caller, new(Message, ConsoleColor.White, LogType.Error, ConsoleColor.Red, Method));
-        public static void Error(Exception Exception, [CallerFilePath] string Caller = "", [CallerMemberName] string Method = "", [CallerLineNumber] int Line = -1) =>
-            Invoke(Caller, new(Exception.InnerException is null ? Exception.Message : $"[LINE {Line}] {Exception.Message}\n({Exception.InnerException.Message})", ConsoleColor.White, LogType.Error, ConsoleColor.Red, Method));
+        public static void Error(Exception Exception, [CallerFilePath] string Caller = "", [CallerMemberName] string Method = "") =>
+            Invoke(Caller, new(Exception.InnerException is null ? Exception.Message : $"{Exception.Message}\n({Exception.InnerException.Message})", ConsoleColor.White, LogType.Error, ConsoleColor.Red, Method));
 
         public static void Warning(string Message, [CallerFilePath] string Caller = "", [CallerMemberName] string Method = "") =>
             Invoke(Caller, new(Message, ConsoleColor.White, LogType.Warning, ConsoleColor.Yellow, Method));

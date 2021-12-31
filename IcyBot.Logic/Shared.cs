@@ -6,6 +6,8 @@ namespace IcyBot.Logic
     {
         public static ConfigModel Config { get; set; } = ConfigModel.LoadFromFile("Config.json");
 
+        public static List<HelpModel>? Help { get; set; }
+
         public static DiscordClient? DiscordClient { get; set; }
         public static DiscordConfiguration DiscordConfig { get; } = new()
         {
