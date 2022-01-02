@@ -1,11 +1,10 @@
-﻿namespace IcyBot.Logic.Enums
+﻿namespace IcyBot.Logic.Enums;
+
+public enum LogType
 {
-    public enum LogType
-    {
-        Information,
-        Success,
-        Error,
-        Warning,
-        Nothing
-    }
+    Information,
+    Success,
+    Error,
+    Warning,
+    Nothing
 }

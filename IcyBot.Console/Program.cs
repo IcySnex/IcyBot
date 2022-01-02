@@ -1,86 +1,85 @@
 ﻿using System.Reflection;
-using System.Text;
 using IcyBot.Console.CommandsNext;
-using IcyBot.Logic.Helpers.Models;
 
-namespace IcyBot.Console
+namespace IcyBot.Console;
+
+public class Program
 {
-    public class Program
+    public static void Main()
     {
-        public static void Main()
-        {
-            Log.LogEvent += LogHandler;
-            AppDomain.CurrentDomain.UnhandledException += (s, e) => Log.Error((Exception)e.ExceptionObject);
-            StartBot().GetAwaiter().GetResult();
-        }
+        Log.LogEvent += LogHandler;
+        AppDomain.CurrentDomain.UnhandledException += (s, e) => Log.Error((Exception)e.ExceptionObject);
+        StartBot().GetAwaiter().GetResult();
+    }
 
-        public static async Task StartBot()
-        {
-            Log.Info($"IcyBot, version {Assembly.GetExecutingAssembly().GetName().Version} | DSharpPlus, version {Assembly.LoadFrom("DSharpPlus").GetName().Version}");
+    public static async Task StartBot()
+    {
+        Log.Info($"IcyBot, version {Assembly.GetExecutingAssembly().GetName().Version} | DSharpPlus, version {Assembly.LoadFrom("DSharpPlus").GetName().Version}");
 
-            Shared.DiscordClient = new(Shared.DiscordConfig);
-            Shared.DiscordClient.Ready += OnReady;
-            Log.Info("Initialized DiscordClient");
+        Shared.DiscordClient = new(Shared.DiscordConfig);
+        Shared.DiscordClient.Ready += OnReady;
+        Log.Info("Initialized DiscordClient");
 
-            Shared.CommandsNext = Shared.DiscordClient.UseCommandsNext(Shared.CommandsNextConfig);
-            Shared.CommandsNext.CommandErrored += OnCommandErrored;
-            Shared.CommandsNext.CommandExecuted += OnCommandExecuted;
-            Shared.CommandsNext.RegisterCommands<Misc>();
-            Shared.Help = Logic.Commands.Misc.Help();
-            Log.Info("Registered CommandsNext");
+        Shared.CommandsNext = Shared.DiscordClient.UseCommandsNext(Shared.CommandsNextConfig);
+        Shared.CommandsNext.CommandErrored += OnCommandErrored;
+        Shared.CommandsNext.CommandExecuted += OnCommandExecuted;
+        Shared.CommandsNext.RegisterCommands<Misc>();
+        Shared.Help = Logic.Commands.Misc.Help();
+        Log.Info("Registered CommandsNext");
 
-            await Shared.DiscordClient.ConnectAsync(new(Shared.Config.Status, ActivityType.Playing));
-            Log.Info("Connected DiscordClient to Bot");
+        await Shared.DiscordClient.ConnectAsync(new(Shared.Config.Status, ActivityType.Playing));
+        Log.Info("Connected DiscordClient to Bot");
 
-            await Task.Delay(-1);
-        }
+        await Task.Delay(-1);
+    }
 
-        public static void LogHandler(object? Caller, LogEventArgs e)
-        {
-            System.Console.ForegroundColor = ConsoleColor.DarkGray;
-            System.Console.Write($"[{DateTime.Now:HH:mm:ss | dd.MM.yy} | {Caller}/{e.Method}] ");
-            System.Console.ForegroundColor = e.TypeColor;
-            if (e.Type != LogType.Nothing) System.Console.Write($"[{e.Type}] ");
-            System.Console.ForegroundColor = e.MessageColor;
-            System.Console.Write(e.Message + Environment.NewLine);
-            System.Console.ForegroundColor = ConsoleColor.White;
-        }
+    public static void LogHandler(object? Caller, LogEventArgs e)
+    {
+        System.Console.ForegroundColor = ConsoleColor.DarkGray;
+        System.Console.Write($"[{DateTime.Now:HH:mm:ss | dd.MM.yy} | {Caller}/{e.Method}] ");
+        System.Console.ForegroundColor = e.TypeColor;
+        if (e.Type != LogType.Nothing) System.Console.Write($"[{e.Type}] ");
+        System.Console.ForegroundColor = e.MessageColor;
+        System.Console.Write(e.Message + Environment.NewLine);
+        System.Console.ForegroundColor = ConsoleColor.White;
+    }
 
-        public static Task OnReady(DiscordClient sender, ReadyEventArgs e)
-        {
-            //Handlers.Add(sender); *disabled because no handlers are actually implemented currently
-            Log.Info("Bot is ready");
+    public static async Task OnReady(DiscordClient sender, ReadyEventArgs e)
+    {
+        //Handlers.Add(sender); *disabled because no handlers are actually implemented currently
+        Shared.Server = await Client.Server(826929957300076544);
+        Log.Info("Bot is ready");
+    }
+
+    private static Task OnCommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
+    {
+        if (e.Exception.Message == "Specified command was not found.")
             return Task.CompletedTask;
-        }
 
-        private static Task OnCommandErrored(CommandsNextExtension sender, CommandErrorEventArgs e)
+        DiscordEmbedBuilder Bui = Builder.New(Color: new(Shared.Config.Colors.Error));
+        switch (e.Exception.Message)
         {
-            if (e.Exception.Message == "Specified command was not found.")
-                return Task.CompletedTask;
-
-            DiscordEmbedBuilder Bui = Builder.New(Color:new(Shared.Config.Colors.Error));
-            switch (e.Exception.Message)
-            {
-                case "One or more pre-execution checks failed.":
-                    Bui.WithAuthor("Damn bro, u aint got no permissions, go fuck urself");
-                    break;
-                case "Could not find a suitable overload for the command.":
-                    Bui.WithAuthor("fool doesnt even know how to use this command lmao");
-                    // DESCRIPTION TO COMMAND HOW TO USE
-                    break;
-                default:
-                    Bui.WithAuthor(e.Exception.Message);
-                    // DESCRIPTION TO COMMAND HOW TO USE
-                    break;
-            }
-            e.Context.RespondAsync(Bui);
-            Log.Error($"[{e.Context.User.Username}#{e.Context.User.Discriminator}] [{e.Context.Channel.Name}] [Args: {e.Context.RawArgumentString}] Command failed to execute\n{e.Exception.Message}", "CommandsNext/" + e.Command.Module.ModuleType.Name, e.Command.Name);
-            return Task.CompletedTask;
+            case "One or more pre-execution checks failed.":
+                Bui.WithAuthor("Damn bro, u aint got no permissions, go fuck urself");
+                break;
+            case "Could not find a suitable overload for the command.":
+                Bui.WithAuthor("Fool doesnt even know how to use this command lmao");
+                var Command = Shared.Help!.Where(Category => Category.Name.Equals(e.Command.Module.ModuleType.Name, StringComparison.InvariantCultureIgnoreCase)).First().List!.Where(Command => Command.Name.Equals(e.Command.Name, StringComparison.InvariantCultureIgnoreCase)).First();
+                Bui.WithDescription(Command.List != null && Command.List.Count != 0 ? $"**!{Command}**\n*{Command.Description}*\n\n**Arguments:**\n{string.Join("\n", Command.List.Select(Parameter => $"`{Parameter.Name}`: *{Parameter.Description}*"))}" : $"**!{Command.Name.ToLower()}**\n*{Command.Description}*");
+                break;
+            default:
+                Bui.WithAuthor(e.Exception.Message);
+                var Command_ = Shared.Help!.Where(Category => Category.Name.Equals(e.Command.Module.ModuleType.Name, StringComparison.InvariantCultureIgnoreCase)).First().List!.Where(Command => Command.Name.Equals(e.Command.Name, StringComparison.InvariantCultureIgnoreCase)).First();
+                Bui.WithDescription(Command_.List != null && Command_.List.Count != 0 ? $"**!{Command_}**\n*{Command_.Description}*\n\n**Arguments:**\n{string.Join("\n", Command_.List.Select(Parameter => $"`{Parameter.Name}`: *{Parameter.Description}*"))}" : $"**!{Command_.Name.ToLower()}**\n*{Command_.Description}*");
+                break;
         }
-        private static Task OnCommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
-        {
-            Log.Success($"[{e.Context.User.Username}#{e.Context.User.Discriminator}] [#{e.Context.Channel.Name}] [Args: {e.Context.RawArgumentString}] Command successfully executed", "CommandsNext/" + e.Command.Module.ModuleType.Name, e.Command.Name);
-            return Task.CompletedTask;
-        }
+        e.Context.RespondAsync(Bui);
+        Log.Error($"[{e.Context.User.Username}#{e.Context.User.Discriminator}] [{e.Context.Channel.Name}] [Args: {e.Context.RawArgumentString}] Command failed to execute\n{e.Exception.Message}", "CommandsNext/" + e.Command.Module.ModuleType.Name, e.Command.Name);
+        return Task.CompletedTask;
+    }
+    private static Task OnCommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)
+    {
+        Log.Success($"[{e.Context.User.Username}#{e.Context.User.Discriminator}] [#{e.Context.Channel.Name}] [Args: {e.Context.RawArgumentString}] Command successfully executed", "CommandsNext/" + e.Command.Module.ModuleType.Name, e.Command.Name);
+        return Task.CompletedTask;
     }
 }

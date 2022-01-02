@@ -1,8 +1,7 @@
-﻿namespace IcyBot.Logic.Helpers
+﻿namespace IcyBot.Logic.Helpers;
+
+public class Text
 {
-    public class Text
-    {
-        public static string Fltu(string Input) =>
-            string.Concat(Input[0].ToString().ToUpper(), Input.AsSpan(1));
-    }
+    public static string Fltu(string Input) =>
+        string.Concat(Input[0].ToString().ToUpper(), Input.AsSpan(1));
 }

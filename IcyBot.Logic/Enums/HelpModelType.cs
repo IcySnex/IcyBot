@@ -1,9 +1,8 @@
-﻿namespace IcyBot.Logic.Enums
+﻿namespace IcyBot.Logic.Enums;
+
+public enum HelpModelType
 {
-    public enum HelpModelType
-    {
-        Category,
-        Command,
-        Parameter
-    }
+    Category,
+    Command,
+    Parameter
 }
