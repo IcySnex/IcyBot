@@ -10,6 +10,7 @@ public class Shared
     public static DiscordGuild? Server { get; set; }
 
     public static string Invite { get; } = "https://discord.com/invite/Z8kweuryux";
+    public static string Project { get; } = "https://github.com/IcySnex/IcyBot";
 
     public static DiscordClient? DiscordClient { get; set; }
     public static DiscordConfiguration DiscordConfig { get; } = new()

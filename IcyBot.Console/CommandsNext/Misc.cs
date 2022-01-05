@@ -59,24 +59,72 @@ public class Misc : BaseCommandModule
     public async Task Userinfo(CommandContext ctx, [Description("User from whom the informations be displayed")] DiscordMember? User = null)
     {
         if (User is null) User = ctx.Member;
-        var Bui = Builder.New("Userinfo").WithThumbnail(Logic.Commands.Misc.Avatar(User, Size:256));
+        var Bui = Builder.New("Userinfo").WithThumbnail(Logic.Commands.Misc.Avatar(User, Size:128));
         Bui.AddField("Username", $"{User.Username}#{User.Discriminator}", true);
         Bui.AddField("ID", User.Id.ToString(), true);
-        Bui.AddField("Flags", User.Flags.ToString(), true);
-        Bui.AddField("Nitro", User.PremiumSince is null ? "None" : User.PremiumSince.Value.UtcDateTime.ToString(), true);
+        //Bui.AddField("Warns", Logic.Commands.Misc.Warns(User), true);
+        Bui.AddField("Flags", User.Flags == null ? "None" : User.Flags.ToString(), true);
         Bui.AddField("Joined Server At", User.JoinedAt.UtcDateTime.ToString(), true);
         Bui.AddField("Joined Discord At", User.CreationTimestamp.UtcDateTime.ToString(), true);
-        // FIX ROLES LOL
         Bui.AddField("Roles", string.Join(", ", User.Roles.Select(Role => Role.Mention).ToList()));
+        await ctx.RespondAsync(Bui);
+    }
+
+    [Command("roleinfo")]
+    [Aliases("role-info", "role", "rl")]
+    [Description("Displays all important informations about a role")]
+    public async Task Roleinfo(CommandContext ctx, [Description("Role from whom the informations be displayed")] DiscordRole Role)
+    {
+        var Bui = Builder.New("Roleinfo", Color:Role.Color);
+        Bui.AddField("Role", Role.Mention, true);
+        Bui.AddField("ID", Role.Id.ToString(), true);
+        Bui.AddField("Color", Role.Color.ToString(), true);
+        Bui.AddField("Is Mentionable", Role.IsMentionable.ToString(), true);
+        Bui.AddField("Position", $"{Role.Position}/{ctx.Guild.Roles.Count - 1}", true);
+        Bui.AddField("Created At", Role.CreationTimestamp.UtcDateTime.ToString(), true);
+        Bui.AddField("Permissions", Role.Permissions.ToPermissionString());
+        await ctx.RespondAsync(Bui);
+    }
+    
+    [Command("serverinfo")]
+    [Aliases("server-info", "server", "si")]
+    [Description("Displays all important informations about a role")]
+    public async Task Serverinfo(CommandContext ctx)
+    {
+        var Bui = Builder.New().WithAuthor("Serverinfo", Shared.Invite).WithThumbnail(ctx.Guild.IconUrl);
+        Bui.AddField("Name", ctx.Guild.Name, true);
+        Bui.AddField("ID", ctx.Guild.Id.ToString(), true);
+        Bui.AddField("Owner", ctx.Guild.Owner.Mention, true);
+        Bui.AddField("Boosts", ctx.Guild.PremiumSubscriptionCount.ToString(), true);
+        Bui.AddField("Stats", $"Total Members: **{ctx.Guild.MemberCount}**\nTotal Channels: **{ctx.Guild.Channels.Count}**\nTotal Roles: **{ctx.Guild.Roles.Count - 1}**\nTotal Emojis: **{ctx.Guild.Emojis.Count}**", true);
+        Bui.AddField("Created At", ctx.Guild.CreationTimestamp.UtcDateTime.ToString(), true);
+        Bui.AddField("Features", Text.Fltu(string.Join(", ", ctx.Guild.Features).ToLower(), true).Replace("_", " "));
+        await ctx.RespondAsync(Bui);
+    }
+    
+    [Command("botinfo")]
+    [Aliases("bot-info", "bot", "bi")]
+    [Description("Displays all important informations about this bot")]
+    public async Task Botinfo(CommandContext ctx, [Description("Password required to view host IP-address")] [RemainingText] string Auth = "")
+    {
+        var Bui = Builder.New().WithAuthor("Botinfo", Shared.Project).WithThumbnail(Shared.DiscordClient!.CurrentApplication.Icon);
+        Bui.AddField("Name", $"{Shared.DiscordClient.CurrentApplication.Name} / {Shared.DiscordClient.CurrentUser.Username}#{Shared.DiscordClient!.CurrentUser.Discriminator}", true);
+        Bui.AddField("Description", Shared.DiscordClient.CurrentApplication.Description, true);
+        Bui.AddField("Created At", Shared.DiscordClient.CurrentApplication.CreationTimestamp.UtcDateTime.ToString(), true);
+        Bui.AddField("RAM Usage", $"{Local.RamUsage().ToString("F")} MB", true);
+        Bui.AddField("CPU Usage", $"{(await Local.CpuUsage()).ToString("F")} %", true);
+        Bui.AddField("Running for", Text.FormatTime(Local.RunningFor()), true);
+        Bui.AddField("Latency", $"{Logic.Commands.Misc.Latency()}ms", true);
+        Bui.AddField("OS Information", Local.OsInformation, true);
+        Bui.AddField("Host IP", Auth == Shared.Config.Auth ? await Local.IP() : "*`auth required`*", true);
         await ctx.RespondAsync(Bui);
     }
 
     [Command("debug")]
     [Aliases("test")]
     [Description("Command for testing and debugging purposes")]
-    public Task Debug(CommandContext ctx, DiscordMember User)
-    {
-        ctx.RespondAsync(Json.Serialize(Logic.Commands.Misc.Userinfo(User)));
-        throw new NotImplementedException();
+    public Task Debug(CommandContext ctx, string auth = "")
+    { 
+        throw new NotImplementedException("This is normal lol");
     }
 }

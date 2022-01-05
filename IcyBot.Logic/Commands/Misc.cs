@@ -34,4 +34,13 @@ public class Misc
 
     public static UserModel Userinfo(DiscordMember User) =>
         new(User);
+
+    public static RoleModel Roleinfo(DiscordRole Role) =>
+        new(Role);
+
+    public static ServerModel Serverinfo(DiscordGuild Server) =>
+        new(Server);
+
+    public static BotModel Botinfo(string Auth = "") =>
+        new(Auth);
 }

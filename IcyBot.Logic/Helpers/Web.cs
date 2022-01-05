@@ -7,4 +7,6 @@ public class Web
     public static async Task<Stream> Stream(string url) =>
         await Client.GetStreamAsync(url);
 
+    public static async Task<string> String(string url) =>
+        await Client.GetStringAsync(url);
 }
