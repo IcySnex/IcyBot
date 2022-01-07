@@ -8,6 +8,7 @@ public class Local
     public static bool IsWindows = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? true : false;
     public static string OsInformation = RuntimeInformation.OSDescription;
     public static string Sl = IsWindows ? "\\" : "/";
+    public static DateTime StartTime = Process.GetCurrentProcess().StartTime.ToUniversalTime();
 
     public static T RunSync<T>(Task<T> AsyncTask)
     {
@@ -17,9 +18,6 @@ public class Local
 
     public static string Path(string Path) =>
         $"{AppDomain.CurrentDomain.BaseDirectory}Database{Sl}{Path}";
-
-    public static TimeSpan RunningFor() =>
-        DateTime.Now - Process.GetCurrentProcess().StartTime;
 
     public static Task<string> IP() =>
         Web.String("https://api.ipify.org");

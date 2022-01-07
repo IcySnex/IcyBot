@@ -13,4 +13,7 @@ public class Text
         .Replace("{mm}", Time.Minutes.ToString())
         .Replace("{ss}", Time.Seconds.ToString())
         .Replace("{ms}", Time.Milliseconds.ToString());
+
+    public static string FormatDate(DateTime? Date = null, string Attribute = "f") =>
+        $"<t:{(long)((Date is null ? DateTime.UtcNow : Date.Value) - new DateTime(1970, 1, 1, 0, 0, 0)).TotalSeconds}:{Attribute}>";
 }

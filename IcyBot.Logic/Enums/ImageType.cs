@@ -1,6 +1,6 @@
 ﻿namespace IcyBot.Logic.Enums;
 
-public enum ImageFormat
+public enum ImageType
 {
     Unknown,
     Jpeg,

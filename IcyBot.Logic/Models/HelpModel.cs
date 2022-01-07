@@ -11,7 +11,7 @@ public class HelpModel
     }
 
     public override string ToString() =>
-        $"{Name.ToLower()} {string.Join(" ", List!.Select(List_ => List_.Name.ToLower()))}";
+        Name.ToLower() + string.Join("", List!.Select(List_ => List_.Name.ToLower()));
 
     public HelpModelType Type { get; }
     public string Name { get; }

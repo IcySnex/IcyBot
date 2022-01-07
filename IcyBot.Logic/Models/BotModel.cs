@@ -5,6 +5,7 @@ public class BotModel
     public BotModel(string Auth = "")
     {
         if (Shared.DiscordClient == null) throw Exceptions.IsNull("Shared.DiscordClient");
+
         Application = Shared.DiscordClient.CurrentApplication.Name;
         Description = Shared.DiscordClient.CurrentApplication.Description;
         User = $"{Shared.DiscordClient.CurrentUser.Username}#{Shared.DiscordClient.CurrentUser.Discriminator}";
@@ -12,7 +13,7 @@ public class BotModel
         CreatedAt = Shared.DiscordClient.CurrentApplication.CreationTimestamp.UtcDateTime;
         RAM = Local.RamUsage();
         CPU = Local.RunSync(Local.CpuUsage());
-        RunningFor = Local.RunningFor();
+        RunningSince = Local.StartTime;
         OS = Local.OsInformation;
         HostIp = Auth == Shared.Config.Auth ? Local.RunSync(Local.IP()) : "auth required";
     }
@@ -24,7 +25,7 @@ public class BotModel
     public DateTime CreatedAt { get; }
     public double RAM { get; }
     public double CPU { get; }
-    public TimeSpan RunningFor { get; }
+    public DateTime RunningSince { get; }
     public string OS { get; }
     public string? HostIp { get; }
 }

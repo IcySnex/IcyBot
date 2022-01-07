@@ -1,10 +1,7 @@
-﻿namespace IcyBot.Logic.Helpers.Models;
+﻿namespace IcyBot.Logic.Models;
 
 public class ConfigModel
 {
-    public static ConfigModel LoadFromFile(string Path) =>
-        Json.Deserialize<ConfigModel>(Path);
-
     public void Save(string Path) =>
         Json.SerializeToFile(this, Path);
 

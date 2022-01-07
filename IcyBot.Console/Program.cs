@@ -24,6 +24,7 @@ public class Program
         Shared.CommandsNext.CommandErrored += OnCommandErrored;
         Shared.CommandsNext.CommandExecuted += OnCommandExecuted;
         Shared.CommandsNext.RegisterCommands<Misc>();
+        Shared.CommandsNext.RegisterCommands<Moderator>();
         Shared.Help = Logic.Commands.Misc.Help();
         Log.Info("Registered CommandsNext");
 
@@ -46,8 +47,8 @@ public class Program
 
     public static async Task OnReady(DiscordClient sender, ReadyEventArgs e)
     {
-        //Handlers.Add(sender); *disabled because no handlers are actually implemented currently
-        Shared.Server = await Client.Server(826929957300076544);
+        //Handlers.Add(sender); //*disabled because no handlers are actually implemented currently
+        Shared.Server = await Discord.GetServer(826929957300076544);
         Log.Info("Bot is ready");
     }
 
@@ -56,7 +57,7 @@ public class Program
         if (e.Exception.Message == "Specified command was not found.")
             return Task.CompletedTask;
 
-        DiscordEmbedBuilder Bui = Builder.New(Color: new(Shared.Config.Colors.Error));
+        DiscordEmbedBuilder Bui = Discord.Builder(Color:Shared.Config.Colors.Error);
         switch (e.Exception.Message)
         {
             case "One or more pre-execution checks failed.":
@@ -64,12 +65,12 @@ public class Program
                 break;
             case "Could not find a suitable overload for the command.":
                 Bui.WithAuthor("Fool doesnt even know how to use this command lmao");
-                var Command = Shared.Help!.Where(Category => Category.Name.Equals(e.Command.Module.ModuleType.Name, StringComparison.InvariantCultureIgnoreCase)).First().List!.Where(Command => Command.Name.Equals(e.Command.Name, StringComparison.InvariantCultureIgnoreCase)).First();
+                var Command = Shared.Help!.Find(Category => Category.Name.Equals(e.Command.Module.ModuleType.Name, StringComparison.InvariantCultureIgnoreCase))!.List!.Find(Command => Command.Name.Equals(e.Command.Name, StringComparison.InvariantCultureIgnoreCase))!;
                 Bui.WithDescription(Command.List != null && Command.List.Count != 0 ? $"**!{Command}**\n*{Command.Description}*\n\n**Arguments:**\n{string.Join("\n", Command.List.Select(Parameter => $"`{Parameter.Name}`: *{Parameter.Description}*"))}" : $"**!{Command.Name.ToLower()}**\n*{Command.Description}*");
                 break;
             default:
                 Bui.WithAuthor(e.Exception.Message);
-                var Command_ = Shared.Help!.Where(Category => Category.Name.Equals(e.Command.Module.ModuleType.Name, StringComparison.InvariantCultureIgnoreCase)).First().List!.Where(Command => Command.Name.Equals(e.Command.Name, StringComparison.InvariantCultureIgnoreCase)).First();
+                var Command_ = Shared.Help!.Find(Category => Category.Name.Equals(e.Command.Module.ModuleType.Name, StringComparison.InvariantCultureIgnoreCase))!.List!.Find(Command => Command.Name.Equals(e.Command.Name, StringComparison.InvariantCultureIgnoreCase))!;
                 Bui.WithDescription(Command_.List != null && Command_.List.Count != 0 ? $"**!{Command_}**\n*{Command_.Description}*\n\n**Arguments:**\n{string.Join("\n", Command_.List.Select(Parameter => $"`{Parameter.Name}`: *{Parameter.Description}*"))}" : $"**!{Command_.Name.ToLower()}**\n*{Command_.Description}*");
                 break;
         }
