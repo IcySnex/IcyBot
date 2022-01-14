@@ -17,7 +17,7 @@ public class Local
     }
 
     public static string Path(string Path) =>
-        $"{AppDomain.CurrentDomain.BaseDirectory}Database{Sl}{Path}";
+        $"{AppDomain.CurrentDomain.BaseDirectory}Database{Sl}{Path.Replace("/", Sl).Replace("\\", Sl)}";
 
     public static Task<string> IP() =>
         Web.String("https://api.ipify.org");

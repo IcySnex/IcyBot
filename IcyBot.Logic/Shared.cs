@@ -4,7 +4,8 @@ public class Shared
 {
     public static ConfigModel Config { get; } = Json.Deserialize<ConfigModel>("Config");
 
-    public static List<ActionModel> Bans { get; } = Json.Load<List<ActionModel>>("Logs/Bans", new());
+    public static List<ActionModel> Bans { get; } = Json.Load<List<ActionModel>>("Actions/Bans", new());
+    public static List<ActionModel> TempBans { get; } = Json.Load<List<ActionModel>>("Actions/TempBans", new());
 
     public static List<HelpModel>? Help { get; set; }
     public static DiscordGuild? Server { get; set; }

@@ -11,6 +11,7 @@ public class ConfigModel
     public string[] Prefixes { get; } = { "!" };
     public ConfigModel_Colors Colors { get; set; } = new();
     public ConfigModel_Roles Roles { get; set; } = new();
+    public int ClockInterval { get; set; } = 60000;
 }
 
 public class ConfigModel_Colors

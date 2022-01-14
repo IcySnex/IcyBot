@@ -9,10 +9,10 @@ public class Program
     {
         Log.LogEvent += LogHandler;
         AppDomain.CurrentDomain.UnhandledException += (s, e) => Log.Error((Exception)e.ExceptionObject);
-        StartBot().GetAwaiter().GetResult();
+        Start().GetAwaiter().GetResult();
     }
 
-    public static async Task StartBot()
+    public static async Task Start()
     {
         Log.Info($"IcyBot, version {Assembly.GetExecutingAssembly().GetName().Version} | DSharpPlus, version {Assembly.LoadFrom("DSharpPlus").GetName().Version}");
 
@@ -37,7 +37,7 @@ public class Program
     public static void LogHandler(object? Caller, LogEventArgs e)
     {
         System.Console.ForegroundColor = ConsoleColor.DarkGray;
-        System.Console.Write($"[{DateTime.Now:HH:mm:ss | dd.MM.yy} | {Caller}/{e.Method}] ");
+        System.Console.Write($"[{DateTime.UtcNow:HH:mm:ss | dd.MM.yy} | {Caller}/{e.Method}] ");
         System.Console.ForegroundColor = e.TypeColor;
         if (e.Type != LogType.Nothing) System.Console.Write($"[{e.Type}] ");
         System.Console.ForegroundColor = e.MessageColor;
@@ -49,6 +49,7 @@ public class Program
     {
         //Handlers.Add(sender); //*disabled because no handlers are actually implemented currently
         Shared.Server = await Discord.GetServer(826929957300076544);
+        Clock.Start();
         Log.Info("Bot is ready");
     }
 
