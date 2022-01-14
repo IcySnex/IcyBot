@@ -6,16 +6,16 @@ public class Moderator
     {
         try
         { 
-            await User.SendMessageAsync(Discord.Builder($"Damn bro u got banned from 'IcyCord' lol.", Description:Action.ToString()));
+            await User.SendMessageAsync(Discord.Builder($"Damn bro u got banned from 'IcyCord' lol.", Description:Action.ToDiscordString()));
         }
         catch { Log.Warning("Could not send direct message user who got banned!"); }
 
         try
         { 
             await User.BanAsync(reason: Action.Reason);
-            Log.Info($"User Banned - {Action}", ConsoleColor.Yellow, "Logs");
             Shared.Bans.Add(Action);
             Json.SerializeToFile(Shared.Bans, "Actions/Bans");
+            Log.Info($"User Banned - {Action}", ConsoleColor.Yellow, "Logs");
             return true; 
         }
         catch { return false; }
@@ -28,12 +28,17 @@ public class Moderator
         try
         {
             await User.UnbanAsync(Shared.Server, reason: Action.Reason);
-            Log.Info($"User Unanned - {Action}", ConsoleColor.Yellow, "Logs");
             if (Shared.Bans.Find(Ban => Action.User.ID == Ban.User.ID) is ActionModel Ban)
             {
                 Shared.Bans.Remove(Ban);
                 Json.SerializeToFile(Shared.Bans, "Actions/Bans");
             }
+            if (Shared.TempBans.Find(TempBan => Action.User.ID == TempBan.User.ID) is ActionModel TempBan)
+            {
+                Shared.TempBans.Remove(TempBan);
+                Json.SerializeToFile(Shared.TempBans, "Actions/TempBans");
+            }
+            Log.Info($"User Unanned - {Action}", ConsoleColor.Yellow, "Logs");
             return true; 
         }
         catch { return false; }
@@ -45,8 +50,37 @@ public class Moderator
         try
         {
             await Shared.Server.UnbanMemberAsync(User);
+            if (Shared.Bans.Find(Ban => User == Ban.User.ID) is ActionModel Ban)
+            {
+                Shared.Bans.Remove(Ban);
+                Json.SerializeToFile(Shared.Bans, "Actions/Bans");
+            }
+            if (Shared.TempBans.Find(TempBan => User == TempBan.User.ID) is ActionModel TempBan)
+            {
+                Shared.TempBans.Remove(TempBan);
+                Json.SerializeToFile(Shared.TempBans, "Actions/TempBans");
+            }
             Log.Info($"User Unanned - User: {User}", ConsoleColor.Yellow, "Logs");
             return true; 
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> TempBan(DiscordMember User, ActionModel Action)
+    {
+        try
+        {
+            await User.SendMessageAsync(Discord.Builder($"Damn bro u got tempbanned from 'IcyCord' lol.", Description: Action.ToDiscordString()));
+        }
+        catch { Log.Warning("Could not send direct message user who got tempbanned!"); }
+
+        try
+        {
+            await User.BanAsync(reason: Action.Reason);
+            Shared.TempBans.Add(Action);
+            Json.SerializeToFile(Shared.TempBans, "Actions/TempBans");
+            Log.Info($"User Tempbanned - {Action}", ConsoleColor.Yellow, "Logs");
+            return true;
         }
         catch { return false; }
     }

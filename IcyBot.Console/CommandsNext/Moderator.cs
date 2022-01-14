@@ -25,6 +25,7 @@ public class Moderator : BaseCommandModule
     }
 
     [Command("unban")]
+    [Aliases("unfuck")]
     [Description("Unans an user from this server")]
     [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]", "[Moderator]")]
     public async Task Unan(CommandContext ctx,
@@ -36,5 +37,27 @@ public class Moderator : BaseCommandModule
         await ctx.RespondAsync(await Logic.Commands.Moderator.Unban(User, Action) ?
             Discord.Builder("UNBANNED uwu I hope u are proud of me 👉👈", Description: Action.ToDiscordString(false)) :
             Discord.Builder("U a fucking idiot. this bitch aint even banned", Color:Shared.Config.Colors.Error));
+    }
+
+    [Command("tempban")]
+    [Aliases("tempfuck")]
+    [Description("Temporarily bans an user from this server")]
+    [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]", "[Moderator]")]
+    public async Task TempBan(CommandContext ctx,
+        [Description("User who should be banned")] DiscordMember User,
+        [Description("Amount of time this user should be banned")] TimeSpan Duration,
+        [Description("Reason why this user should be banned")][RemainingText] string Reason = "N/A")
+    {
+        if (Discord.HasRole(User, "[Owner]", "[Admin]", "[IcyBot]", "[Moderator]", "[Supporter]"))
+        {
+            await ctx.RespondAsync(Discord.Builder("U fr tried to tempban staff? lmao CLOWN", Color: Shared.Config.Colors.Error));
+            return;
+        }
+
+        ActionModel Action = new(new(User.Username, User.Id), new(ctx.User.Username, ctx.User.Id), Reason, DateTime.UtcNow, DateTime.UtcNow + Duration);
+
+        await ctx.RespondAsync(await Logic.Commands.Moderator.TempBan(User, Action) ?
+            Discord.Builder("Aight I tempbanned this idiot for u, daddy 😘", Description: Action.ToDiscordString()) :
+            Discord.Builder("Sowwy daddy, I couldnt tempban this idiot 👉👈🥺", Color: Shared.Config.Colors.Error));
     }
 }
