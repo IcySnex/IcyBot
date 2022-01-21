@@ -15,7 +15,7 @@ public class Moderator
             await User.BanAsync(reason: Action.Reason);
             Shared.Bans.Add(Action);
             Json.SerializeToFile(Shared.Bans, "Actions/Bans");
-            Log.Info($"User Banned - {Action}", ConsoleColor.Yellow, "Logs");
+            Log.Info($"User banned - {Action}", ConsoleColor.Yellow, "Logs");
             return true; 
         }
         catch { return false; }
@@ -27,7 +27,7 @@ public class Moderator
 
         try
         {
-            await User.UnbanAsync(Shared.Server, reason: Action.Reason);
+            await User.UnbanAsync(Shared.Server, Action.Reason);
             if (Shared.Bans.Find(Ban => Action.User.ID == Ban.User.ID) is ActionModel Ban)
             {
                 Shared.Bans.Remove(Ban);
@@ -38,29 +38,29 @@ public class Moderator
                 Shared.TempBans.Remove(TempBan);
                 Json.SerializeToFile(Shared.TempBans, "Actions/TempBans");
             }
-            Log.Info($"User Unanned - {Action}", ConsoleColor.Yellow, "Logs");
+            Log.Info($"User unbanned - {Action}", ConsoleColor.Yellow, "Logs");
             return true; 
         }
         catch { return false; }
     }
-    public static async Task<bool> Unban(ulong User)
+    public static async Task<bool> Unban(ActionModel Action)
     {
         if (Shared.Server is null) throw Exceptions.IsNull("Shared.Server");
 
         try
         {
-            await Shared.Server.UnbanMemberAsync(User);
-            if (Shared.Bans.Find(Ban => User == Ban.User.ID) is ActionModel Ban)
+            await Shared.Server.UnbanMemberAsync(Action.User.ID, Action.Reason);
+            if (Shared.Bans.Find(Ban => Action.User.ID == Ban.User.ID) is ActionModel Ban)
             {
                 Shared.Bans.Remove(Ban);
                 Json.SerializeToFile(Shared.Bans, "Actions/Bans");
             }
-            if (Shared.TempBans.Find(TempBan => User == TempBan.User.ID) is ActionModel TempBan)
+            if (Shared.TempBans.Find(TempBan => Action.User.ID == TempBan.User.ID) is ActionModel TempBan)
             {
                 Shared.TempBans.Remove(TempBan);
                 Json.SerializeToFile(Shared.TempBans, "Actions/TempBans");
             }
-            Log.Info($"User Unanned - User: {User}", ConsoleColor.Yellow, "Logs");
+            Log.Info($"User unbanned - {Action}", ConsoleColor.Yellow, "Logs");
             return true; 
         }
         catch { return false; }
@@ -79,7 +79,137 @@ public class Moderator
             await User.BanAsync(reason: Action.Reason);
             Shared.TempBans.Add(Action);
             Json.SerializeToFile(Shared.TempBans, "Actions/TempBans");
-            Log.Info($"User Tempbanned - {Action}", ConsoleColor.Yellow, "Logs");
+            Log.Info($"User tempbanned - {Action}", ConsoleColor.Yellow, "Logs");
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> Mute(DiscordMember User, ActionModel Action)
+    {
+        try
+        {
+            if (Discord.HasRole(User, Shared.Config.Roles.Muted)) return false;
+
+            await User.GrantRoleAsync(Discord.GetRole(Shared.Config.Roles.Muted), Action.Reason);
+            Shared.Mutes.Add(Action);
+            Json.SerializeToFile(Shared.Mutes, "Actions/Mutes");
+            Log.Info($"User muted - {Action}", ConsoleColor.Yellow, "Logs");
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> Unmute(DiscordMember User, ActionModel Action)
+    {
+        try
+        {
+            if (!Discord.HasRole(User, Shared.Config.Roles.Muted)) return false;
+
+            await User.RevokeRoleAsync(Discord.GetRole(Shared.Config.Roles.Muted), Action.Reason);
+            if (Shared.Mutes.Find(Mute => Action.User.ID == Mute.User.ID) is ActionModel Mute)
+            {
+                Shared.Mutes.Remove(Mute);
+                Json.SerializeToFile(Shared.Mutes, "Actions/Mutes");
+            }
+            if (Shared.TempMutes.Find(TempMute => Action.User.ID == TempMute.User.ID) is ActionModel TempMute)
+            {
+                Shared.TempMutes.Remove(TempMute);
+                Json.SerializeToFile(Shared.TempMutes, "Actions/TempMutes");
+            }
+            Log.Info($"User unmuted - {Action}", ConsoleColor.Yellow, "Logs");
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> TempMute(DiscordMember User, ActionModel Action)
+    {
+        try
+        {
+            if (Discord.HasRole(User, Shared.Config.Roles.Muted)) return false;
+
+            await User.GrantRoleAsync(Discord.GetRole(Shared.Config.Roles.Muted), Action.Reason);
+            Shared.TempMutes.Add(Action);
+            Json.SerializeToFile(Shared.TempMutes, "Actions/TempMutes");
+            Log.Info($"User tempmuted - {Action}", ConsoleColor.Yellow, "Logs");
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> Invisible(DiscordMember User, ActionModel Action)
+    {
+        try
+        {
+            if (Discord.HasRole(User, Shared.Config.Roles.Invisible)) return false;
+
+            await User.GrantRoleAsync(Discord.GetRole(Shared.Config.Roles.Invisible), Action.Reason);
+            Shared.Invisibles.Add(Action);
+            Json.SerializeToFile(Shared.Invisibles, "Actions/Invisibles");
+            Log.Info($"User invisibled - {Action}", ConsoleColor.Yellow, "Logs");
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> Uninvisible(DiscordMember User, ActionModel Action)
+    {
+        try
+        {
+            if (!Discord.HasRole(User, Shared.Config.Roles.Invisible)) return false;
+
+            await User.RevokeRoleAsync(Discord.GetRole(Shared.Config.Roles.Invisible), Action.Reason);
+            if (Shared.Invisibles.Find(Invisible => Action.User.ID == Invisible.User.ID) is ActionModel Invisible)
+            {
+                Shared.Invisibles.Remove(Invisible);
+                Json.SerializeToFile(Shared.Invisibles, "Actions/Invisibles");
+            }
+            if (Shared.TempInvisibles.Find(TempInvisible => Action.User.ID == TempInvisible.User.ID) is ActionModel TempInvisible)
+            {
+                Shared.TempInvisibles.Remove(TempInvisible);
+                Json.SerializeToFile(Shared.TempInvisibles, "Actions/TempInvisibles");
+            }
+            Log.Info($"User uninvisibled - {Action}", ConsoleColor.Yellow, "Logs");
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> TempInvisible(DiscordMember User, ActionModel Action)
+    {
+        try
+        {
+            if (Discord.HasRole(User, Shared.Config.Roles.Invisible)) return false;
+
+            await User.GrantRoleAsync(Discord.GetRole(Shared.Config.Roles.Invisible), Action.Reason);
+            Shared.TempInvisibles.Add(Action);
+            Json.SerializeToFile(Shared.TempInvisibles, "Actions/TempInvisibles");
+            Log.Info($"User tempinvisibled - {Action}", ConsoleColor.Yellow, "Logs");
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> Kick(DiscordMember User, string ByName, string Reason = "N/A")
+    {
+        try
+        {
+            await User.RemoveAsync(Reason);
+            Log.Info($"User kicked - User: {User.Username}, By: {ByName}, Reason: {Reason}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static async Task<bool> Clear(DiscordChannel Channel, int Amount)
+    {
+        if (Amount < 1) return false;
+
+        try
+        {
+            await Channel.DeleteMessagesAsync(await Channel.GetMessagesAsync(Amount + 1));
+            Log.Info($"Messages cleared - Channel: {Channel}, Amount: {Amount}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
             return true;
         }
         catch { return false; }

@@ -9,7 +9,10 @@ public class Discord
         Shared.DiscordClient == null ? throw Exceptions.IsNull("Shared.DiscordClient") : await Shared.DiscordClient.GetUserAsync(ID);
 
     public static async Task<DiscordMember> GetMember(ulong ID) =>
-        Shared.Server == null ? throw Exceptions.IsNull("Shared.Server") : await Shared.Server.GetMemberAsync(ID);
+        Shared.Server is null ? throw Exceptions.IsNull("Shared.Server") : await Shared.Server.GetMemberAsync(ID);
+
+    public static DiscordRole GetRole(ulong ID) =>
+        Shared.Server is null ? throw Exceptions.IsNull("Shared.Server") : Shared.Server.GetRole(ID);
 
 
     public static DiscordEmbedBuilder Builder(string Title = "", string Icon = "", string Description = "", string? Color = null) =>
@@ -24,4 +27,6 @@ public class Discord
         User.Roles.Any(Role => RoleName == Role.Name);
     public static bool HasRole(DiscordMember User, params string[] RoleNames) =>
         User.Roles.Any(Role => RoleNames.Contains(Role.Name));
+    public static bool HasRole(DiscordMember User, ulong RoleID) =>
+        User.Roles.Any(Role => RoleID == Role.Id);
 }

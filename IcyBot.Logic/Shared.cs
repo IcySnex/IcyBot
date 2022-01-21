@@ -6,6 +6,10 @@ public class Shared
 
     public static List<ActionModel> Bans { get; } = Json.Load<List<ActionModel>>("Actions/Bans", new());
     public static List<ActionModel> TempBans { get; } = Json.Load<List<ActionModel>>("Actions/TempBans", new());
+    public static List<ActionModel> Mutes { get; } = Json.Load<List<ActionModel>>("Actions/Mutes", new());
+    public static List<ActionModel> TempMutes { get; } = Json.Load<List<ActionModel>>("Actions/TempMutes", new());
+    public static List<ActionModel> Invisibles { get; } = Json.Load<List<ActionModel>>("Actions/Invisibles", new());
+    public static List<ActionModel> TempInvisibles { get; } = Json.Load<List<ActionModel>>("Actions/TempInvisibles", new());
 
     public static List<HelpModel>? Help { get; set; }
     public static DiscordGuild? Server { get; set; }
