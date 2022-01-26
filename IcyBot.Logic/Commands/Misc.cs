@@ -42,4 +42,7 @@ public class Misc
 
     public static BotModel Botinfo(string Auth = "") =>
         new(Auth);
+
+    public static WarningModel? Warnings(ulong User) =>
+        Shared.Warnings.Find(Warning => Warning.User.ID == User) is WarningModel Warning ? Warning : null;
 }

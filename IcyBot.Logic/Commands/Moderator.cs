@@ -21,28 +21,6 @@ public class Moderator
         catch { return false; }
     }
 
-    public static async Task<bool> Unban(DiscordUser User, ActionModel Action)
-    {
-        if (Shared.Server is null) throw Exceptions.IsNull("Shared.Server");
-
-        try
-        {
-            await User.UnbanAsync(Shared.Server, Action.Reason);
-            if (Shared.Bans.Find(Ban => Action.User.ID == Ban.User.ID) is ActionModel Ban)
-            {
-                Shared.Bans.Remove(Ban);
-                Json.SerializeToFile(Shared.Bans, "Actions/Bans");
-            }
-            if (Shared.TempBans.Find(TempBan => Action.User.ID == TempBan.User.ID) is ActionModel TempBan)
-            {
-                Shared.TempBans.Remove(TempBan);
-                Json.SerializeToFile(Shared.TempBans, "Actions/TempBans");
-            }
-            Log.Info($"User unbanned - {Action}", ConsoleColor.Yellow, "Logs");
-            return true; 
-        }
-        catch { return false; }
-    }
     public static async Task<bool> Unban(ActionModel Action)
     {
         if (Shared.Server is null) throw Exceptions.IsNull("Shared.Server");
@@ -191,12 +169,12 @@ public class Moderator
         catch { return false; }
     }
 
-    public static async Task<bool> Kick(DiscordMember User, string ByName, string Reason = "N/A")
+    public static async Task<bool> Kick(DiscordMember User, EntityModel By, string Reason = "N/A")
     {
         try
         {
             await User.RemoveAsync(Reason);
-            Log.Info($"User kicked - User: {User.Username}, By: {ByName}, Reason: {Reason}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
+            Log.Info($"User kicked - User: {User.Username}, By: {By.Name}, Reason: {Reason}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
             return true;
         }
         catch { return false; }
@@ -211,6 +189,38 @@ public class Moderator
             await Channel.DeleteMessagesAsync(await Channel.GetMessagesAsync(Amount + 1));
             Log.Info($"Messages cleared - Channel: {Channel}, Amount: {Amount}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
             return true;
+        }
+        catch { return false; }
+    }
+
+    public static bool Warn(EntityModel User, EntityModel By, string Reason = "N/A")
+    {
+        try
+        {
+            if (Shared.Warnings.Find(Warning => Warning.User.ID == User.ID) is WarningModel Warning)
+                Warning.Inner.Add(new(By, Reason, DateTime.UtcNow));
+            else
+                Shared.Warnings.Add(new(User, new() { new(By, Reason, DateTime.UtcNow) }));
+            Json.SerializeToFile(Shared.Warnings, "Warnings");
+            Log.Info($"User warned - User: {User.Name}, By: {By.Name}, Reason: {Reason}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
+            return true;
+        }
+        catch { return false; }
+    }
+
+    public static bool ClearWarnings(EntityModel User, EntityModel By)
+    {
+        try
+        {
+            if (Shared.Warnings.Find(Warning => Warning.User.ID == User.ID) is WarningModel Warning)
+            {
+                Shared.Warnings.Remove(Warning);
+                Json.SerializeToFile(Shared.Warnings, "Warnings");
+                Log.Info($"Warnings cleared - User: {User.Name}, By: {By.Name}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
+                return true;
+            }
+            else
+                return false;
         }
         catch { return false; }
     }

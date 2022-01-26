@@ -34,7 +34,7 @@ public class Moderator : BaseCommandModule
     {
         ActionModel Action = new(new(User.Username, User.Id), new(ctx.User.Username, ctx.User.Id), Reason, DateTime.UtcNow, null);
 
-        await ctx.RespondAsync(await Logic.Commands.Moderator.Unban(User, Action) ?
+        await ctx.RespondAsync(await Logic.Commands.Moderator.Unban(Action) ?
             Discord.Builder("UNBANNED uwu I hope u are proud of me 👉👈", Description: Action.ToDiscordString(false)) :
             Discord.Builder("U a fucking idiot. this bitch aint even banned", Color:Shared.Config.Colors.Error));
     }
@@ -191,7 +191,7 @@ public class Moderator : BaseCommandModule
             return;
         }
 
-        await ctx.RespondAsync(await Logic.Commands.Moderator.Kick(User, ctx.User.Username, Reason) ?
+        await ctx.RespondAsync(await Logic.Commands.Moderator.Kick(User, new(ctx.User.Username, ctx.User.Id), Reason) ?
             Discord.Builder("mfs gone now lol", Description: $"**Reason:** {Reason}\n**By:** {ctx.User.Mention}, {Text.FormatDate(DateTime.UtcNow)}") :
             Discord.Builder("ERROR ERROR ERROR ERROR", Color: Shared.Config.Colors.Error));
     }
@@ -200,7 +200,7 @@ public class Moderator : BaseCommandModule
     [Aliases("purge")]
     [Description("Clears messages in the current channel")]
     [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]", "[Moderator]", "[Supporter]")]
-    public async Task Clear(CommandContext ctx, [Description("Amount of messages to delete")][RemainingText] int Amount)
+    public async Task Clear(CommandContext ctx, [Description("Amount of messages to delete")] int Amount)
     {
         var Message = await ctx.RespondAsync(await Logic.Commands.Moderator.Clear(ctx.Channel, Amount) ?
             Discord.Builder($"AYO I cleared {Amount} messages!!!!!") :
@@ -208,4 +208,36 @@ public class Moderator : BaseCommandModule
         await Task.Delay(3000);
         try { await Message.DeleteAsync(); } catch { }
     }
+
+    [Command("warn")]
+    [Aliases("infract")]
+    [Description("Warns an user for a specific reason")]
+    [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]", "[Moderator]", "[Supporter]")]
+    public async Task Warn(CommandContext ctx,
+        [Description("User who should be warned")] DiscordMember User,
+        [Description("Reason why this user should be warned")][RemainingText] string Reason = "N/A")
+    {
+        if (Discord.HasRole(User, "[Owner]", "[Admin]", "[IcyBot]", "[Moderator]", "[Supporter]"))
+        {
+            await ctx.RespondAsync(Discord.Builder("Damn u really gonna warn staff? LMAO", Color: Shared.Config.Colors.Error));
+            return;
+        }
+
+        await ctx.RespondAsync(Logic.Commands.Moderator.Warn(new(User.Username, User.Id), new(ctx.User.Username, ctx.User.Id), Reason) ?
+            Discord.Builder($"Warned this bitch 😈", Description:$"**Reason:** {Reason}\n**By:** {ctx.User.Mention}, {Text.FormatDate(DateTime.UtcNow)}") :
+            Discord.Builder("dont know why but im not gonna do this lol", Color: Shared.Config.Colors.Error));
+    }
+    
+    [Command("clear-warnings")]
+    [Aliases("clearwarnings", "clear-all-warnings", "clear-infractions", "clearinfractions", "clear-all-infractions")]
+    [Description("Clears all warnings of an user")]
+    [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]", "[Moderator]", "[Supporter]")]
+    public async Task Warn(CommandContext ctx,
+        [Description("User from whom the warnings should be cleared")] DiscordMember User)
+    {
+        await ctx.RespondAsync(Logic.Commands.Moderator.ClearWarnings(new(User.Username, User.Id), new(ctx.User.Username, ctx.User.Id)) ?
+            Discord.Builder($"sure this clown aint got no warnings left") :
+            Discord.Builder("huh u sure this clown even has any warnings?", Color: Shared.Config.Colors.Error));
+    }
+
 }

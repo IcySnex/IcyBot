@@ -14,6 +14,9 @@ public class Discord
     public static DiscordRole GetRole(ulong ID) =>
         Shared.Server is null ? throw Exceptions.IsNull("Shared.Server") : Shared.Server.GetRole(ID);
 
+    public static DiscordChannel GetChannel(ulong ID) =>
+        Shared.Server is null ? throw Exceptions.IsNull("Shared.Server") : Shared.Server.GetChannel(ID);
+
 
     public static DiscordEmbedBuilder Builder(string Title = "", string Icon = "", string Description = "", string? Color = null) =>
         new()
