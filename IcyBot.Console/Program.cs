@@ -76,7 +76,7 @@ public class Program
                 break;
         }
         e.Context.RespondAsync(Bui);
-        Log.Error($"[{e.Context.User.Username}#{e.Context.User.Discriminator}] [{e.Context.Channel.Name}] [Args: {e.Context.RawArgumentString}] Command failed to execute\n{e.Exception.Message}", "CommandsNext/" + e.Command.Module.ModuleType.Name, e.Command.Name);
+        Log.Error($"[{e.Context.User.Username}#{e.Context.User.Discriminator}] [{e.Context.Channel.Name}] [Args: {e.Context.RawArgumentString}] Command failed to execute\n{e.Exception.Message}", ConsoleColor.White, "CommandsNext/" + e.Command.Module.ModuleType.Name, e.Command.Name);
         return Task.CompletedTask;
     }
     private static Task OnCommandExecuted(CommandsNextExtension sender, CommandExecutionEventArgs e)

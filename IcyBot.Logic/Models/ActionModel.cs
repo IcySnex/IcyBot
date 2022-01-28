@@ -20,7 +20,7 @@ public class ActionModel
     public DateTime? EndDateTime { get; set; }
 
     public override string ToString() =>
-        $"User: {User.Name}, By: {By.Name}, Reason: {Reason}, DateTime: {DateTime}{(EndDateTime is null ? "" : $", Duration: {Text.FormatTime((EndDateTime - DateTime).Value)}")}";
+        $"User: {User.Name}, By: {By.Name}, Reason: {Reason}{(EndDateTime is null ? "" : $", Duration: {Text.FormatTime((EndDateTime - DateTime).Value)}")}";
 
     public string ToDiscordString(bool IncludeDuration = true) =>
         $"**Reason:** {Reason}{(IncludeDuration ? $"\n**Duration:** {(EndDateTime is null ? "Permanent" : Text.FormatTime((EndDateTime - DateTime).Value))}" : "")}\n**By:** <@!{By.ID}>, {Text.FormatDate(DateTime)}";

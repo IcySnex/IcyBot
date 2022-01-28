@@ -232,7 +232,7 @@ public class Moderator : BaseCommandModule
     [Aliases("clearwarnings", "clear-all-warnings", "clear-infractions", "clearinfractions", "clear-all-infractions")]
     [Description("Clears all warnings of an user")]
     [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]", "[Moderator]", "[Supporter]")]
-    public async Task Warn(CommandContext ctx,
+    public async Task ClearWarnings(CommandContext ctx,
         [Description("User from whom the warnings should be cleared")] DiscordMember User)
     {
         await ctx.RespondAsync(Logic.Commands.Moderator.ClearWarnings(new(User.Username, User.Id), new(ctx.User.Username, ctx.User.Id)) ?
@@ -240,4 +240,54 @@ public class Moderator : BaseCommandModule
             Discord.Builder("huh u sure this clown even has any warnings?", Color: Shared.Config.Colors.Error));
     }
 
+    [Command("snipe")]
+    [Aliases("what")]
+    [Description("Displays the last deleted message of this channel")]
+    [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]", "[Moderator]", "[Supporter]")]
+    public async Task Snipe(CommandContext ctx)
+    {
+        if (Logic.Commands.Moderator.Snipe(ctx.Channel.Id) is SnipeModel Snipe)
+        {
+            var Bui = Discord.Builder("YO this bi tried deleting sum", Description: Snipe.Content.Length > 0 ? Snipe.Content : "*None*");
+
+            Bui.AddField("Created At", Text.FormatDate(Snipe.DateTime), true);
+            Bui.AddField("Author", $"<@!{Snipe.User.ID}>", true);
+            Bui.AddField("Attachments", Snipe.AttachmentUrls.Length > 0 ? string.Join(", ", Snipe.AttachmentUrls.Select((x, i) => $"[[{i + 1}]]({x})")) : "*None*", true);
+            
+            await ctx.RespondAsync(Bui);
+        }
+        else
+            await ctx.RespondAsync(Discord.Builder("YO i dont have shi for u", Color: Shared.Config.Colors.Error));
+    }
+
+    [Command("esnipe")]
+    [Aliases("ewhat")]
+    [Description("Displays the last edited message of this channel")]
+    [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]", "[Moderator]", "[Supporter]")]
+    public async Task ESnipe(CommandContext ctx)
+    {
+        if (Logic.Commands.Moderator.ESnipe(ctx.Channel.Id) is SnipeModel ESnipe)
+        {
+            var Bui = Discord.Builder("YO this bi tried editing sum", Description: ESnipe.Content.Length > 0 ? $"***Old:*** {ESnipe.Content}\n\n***New:*** {ESnipe.ContentAft}" : "*None*");
+
+            Bui.AddField("Created At", Text.FormatDate(ESnipe.DateTime), true);
+            Bui.AddField("Author", $"<@!{ESnipe.User.ID}>", true);
+            Bui.AddField("Refernce", $"[*[URL]*](https://discord.com/channels/826929957300076544/{ESnipe.Channel.ID}/{ESnipe.ID})", true);
+            
+            await ctx.RespondAsync(Bui);
+        }
+        else
+            await ctx.RespondAsync(Discord.Builder("YO i dont have shi for u", Color: Shared.Config.Colors.Error));
+    }
+
+    [Command("backup")]
+    [Aliases("save")]
+    [Description("Displays the last edited message of this channel")]
+    [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]")]
+    public async Task Backup(CommandContext ctx)
+    {
+        await ctx.RespondAsync(Logic.Commands.Moderator.Backup() is Stream Database ?
+            new DiscordMessageBuilder().WithEmbed(Discord.Builder("Here u have yo shit")).WithFile("Database.zip", Database) :
+            new DiscordMessageBuilder().WithEmbed(Discord.Builder("BITCH, I couldnt get yo shit!!", Color: Shared.Config.Colors.Error)));
+    }    
 }

@@ -131,11 +131,60 @@ public static class Handlers
     }
     public static Task MessageDeleted(DiscordClient sender, MessageDeleteEventArgs e)
     {
-        throw new NotImplementedException();
+        try
+        {
+            if (Shared.Snipes.Find(Snipe => Snipe.Channel.ID == e.Channel.Id) is SnipeModel Snipe)
+            {
+                Snipe.User = new(e.Message.Author.Username, e.Message.Author.Id);
+                Snipe.ID = e.Message.Id;
+                Snipe.Content = e.Message.Content;
+                Snipe.AttachmentUrls = e.Message.Attachments.Select(x => x.Url).ToArray();
+                Snipe.DateTime = DateTime.UtcNow;
+            }
+            else
+                Shared.Snipes.Add(new(
+                    new(e.Channel.Name, e.Channel.Id),
+                    new(e.Message.Author.Username, e.Message.Author.Id),
+                    e.Message.Id,
+                    e.Message.Content,
+                    e.Message.Attachments.Select(x => x.Url).ToArray(),
+                    DateTime.UtcNow));
+
+            Json.SerializeToFile(Shared.Snipes, "Snipes");
+            Log.Info($"Message Deleted - Channel: {e.Channel.Name}, User: {e.Message.Author.Username}, Attachments: {e.Message.Attachments.Count}, ID: {e.Message.Id}", ConsoleColor.Yellow, "Logs");
+        }
+        catch { Log.Error("Message Deleted - Error", ConsoleColor.Yellow, "Logs"); }
+
+        return Task.CompletedTask;
     }
     public static Task MessageUpdated(DiscordClient sender, MessageUpdateEventArgs e)
     {
-        throw new NotImplementedException();
+        try
+        {
+            if (Shared.ESnipes.Find(ESnipe => ESnipe.Channel.ID == e.Channel.Id) is SnipeModel ESnipe)
+            {
+                ESnipe.User = new(e.Message.Author.Username, e.Message.Author.Id);
+                ESnipe.ID = e.Message.Id;
+                ESnipe.Content = e.MessageBefore.Content;
+                ESnipe.DateTime = DateTime.UtcNow;
+                ESnipe.ContentAft = e.Message.Content;
+            }
+            else
+                Shared.ESnipes.Add(new(
+                    new(e.Channel.Name, e.Channel.Id),
+                    new(e.Message.Author.Username, e.Message.Author.Id),
+                    e.Message.Id,
+                    e.MessageBefore.Content,
+                    Array.Empty<string>(),
+                    DateTime.UtcNow,
+                    e.Message.Content));
+
+            Json.SerializeToFile(Shared.ESnipes, "ESnipes");
+            Log.Info($"Message Edited - Channel: {e.Channel.Name}, User: {e.Message.Author.Username}, ID: {e.Message.Id}", ConsoleColor.Yellow, "Logs");
+        }
+        catch { Log.Error("Message Edited - Error", ConsoleColor.Yellow, "Logs"); }
+
+        return Task.CompletedTask;
     }
     public static Task MessagesBulkDeleted(DiscordClient sender, MessageBulkDeleteEventArgs e)
     {

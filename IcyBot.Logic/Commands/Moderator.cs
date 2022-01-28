@@ -174,7 +174,7 @@ public class Moderator
         try
         {
             await User.RemoveAsync(Reason);
-            Log.Info($"User kicked - User: {User.Username}, By: {By.Name}, Reason: {Reason}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
+            Log.Info($"User kicked - User: {User.Username}, By: {By.Name}, Reason: {Reason}", ConsoleColor.Yellow, "Logs");
             return true;
         }
         catch { return false; }
@@ -187,7 +187,7 @@ public class Moderator
         try
         {
             await Channel.DeleteMessagesAsync(await Channel.GetMessagesAsync(Amount + 1));
-            Log.Info($"Messages cleared - Channel: {Channel}, Amount: {Amount}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
+            Log.Info($"Messages cleared - Channel: {Channel}, Amount: {Amount}", ConsoleColor.Yellow, "Logs");
             return true;
         }
         catch { return false; }
@@ -202,7 +202,7 @@ public class Moderator
             else
                 Shared.Warnings.Add(new(User, new() { new(By, Reason, DateTime.UtcNow) }));
             Json.SerializeToFile(Shared.Warnings, "Warnings");
-            Log.Info($"User warned - User: {User.Name}, By: {By.Name}, Reason: {Reason}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
+            Log.Info($"User warned - User: {User.Name}, By: {By.Name}, Reason: {Reason}", ConsoleColor.Yellow, "Logs");
             return true;
         }
         catch { return false; }
@@ -216,12 +216,28 @@ public class Moderator
             {
                 Shared.Warnings.Remove(Warning);
                 Json.SerializeToFile(Shared.Warnings, "Warnings");
-                Log.Info($"Warnings cleared - User: {User.Name}, By: {By.Name}, DateTime: {DateTime.UtcNow}", ConsoleColor.Yellow, "Logs");
+                Log.Info($"Warnings cleared - User: {User.Name}, By: {By.Name}", ConsoleColor.Yellow, "Logs");
                 return true;
             }
             else
                 return false;
         }
         catch { return false; }
+    }
+
+    public static SnipeModel? Snipe(ulong Channel) =>
+        Shared.Snipes.Find(Snipe => Snipe.Channel.ID == Channel) is SnipeModel Snipe ? Snipe : null;
+
+    public static SnipeModel? ESnipe(ulong Channel) =>
+        Shared.ESnipes.Find(ESnipe => ESnipe.Channel.ID == Channel) is SnipeModel ESnipe ? ESnipe : null;
+
+    public static Stream? Backup()
+    {
+        try
+        {
+            Log.Info($"Backup requested", ConsoleColor.Yellow, "Logs");
+            return Local.Zip("FIX THIS SHIT");
+        }
+        catch { return null; }
     }
 }
