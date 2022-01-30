@@ -284,10 +284,8 @@ public class Moderator : BaseCommandModule
     [Aliases("save")]
     [Description("Displays the last edited message of this channel")]
     [RequireRoles(RoleCheckMode.Any, "[Owner]", "[Admin]")]
-    public async Task Backup(CommandContext ctx)
-    {
+    public async Task Backup(CommandContext ctx) =>
         await ctx.RespondAsync(Logic.Commands.Moderator.Backup() is Stream Database ?
             new DiscordMessageBuilder().WithEmbed(Discord.Builder("Here u have yo shit")).WithFile("Database.zip", Database) :
             new DiscordMessageBuilder().WithEmbed(Discord.Builder("BITCH, I couldnt get yo shit!!", Color: Shared.Config.Colors.Error)));
-    }    
 }

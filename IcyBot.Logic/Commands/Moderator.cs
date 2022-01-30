@@ -231,12 +231,12 @@ public class Moderator
     public static SnipeModel? ESnipe(ulong Channel) =>
         Shared.ESnipes.Find(ESnipe => ESnipe.Channel.ID == Channel) is SnipeModel ESnipe ? ESnipe : null;
 
-    public static Stream? Backup()
+    public static Stream? Backup(bool BySystem = false)
     {
         try
         {
-            Log.Info($"Backup requested", ConsoleColor.Yellow, "Logs");
-            return Local.Zip("FIX THIS SHIT");
+            Log.Info($"Backup requested{(BySystem ? " [AUTO SYSTEM]" : "")}", ConsoleColor.Yellow, "Logs");
+            return Local.Zip("");
         }
         catch { return null; }
     }

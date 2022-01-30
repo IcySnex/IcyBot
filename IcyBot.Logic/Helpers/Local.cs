@@ -40,14 +40,35 @@ public class Local
 
     public static MemoryStream Zip(string Input)
     {
-        Log.Info(Path(Input));
+        Input = Path(Input);
         using (var Result = new MemoryStream())
         {
-            using (var Zip = new ZipArchive(Result, ZipArchiveMode.Create, true))
-                Zip.CreateEntryFromFile(Path(Input), Input.Split(Sl).Last());
+            var Path = Input.Split(Sl);
+            var Zip = new ZipArchive(Result, ZipArchiveMode.Create, true);
+            try
+            {
+                AddZipEntry(ref Zip, Input, Input.EndsWith(Sl) ? Path[Path.Length - 2] : Path.Last());
+            }
+            finally { Zip.Dispose(); }
 
             Result.Seek(0, SeekOrigin.Begin);
             return new(Result.ToArray());
         }
+    }
+
+    public static void AddZipEntry(ref ZipArchive Zip, string Input, string Name)
+    {
+        var Path = Input.Split(Sl);
+        if (File.GetAttributes(Input).HasFlag(FileAttributes.Directory))
+        {
+            var Entries = Directory.EnumerateFileSystemEntries(Input);
+            if (Entries.Count() > 0)
+                foreach (var Entry in Entries)
+                    AddZipEntry(ref Zip, Entry, System.IO.Path.Combine(Name, Entry.Split(Sl).Last()));
+            else
+                Zip.CreateEntry(Path[Path.Length - 2] + Sl);
+        }
+        else
+            Zip.CreateEntryFromFile(Input, Name);
     }
 }
