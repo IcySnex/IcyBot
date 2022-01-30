@@ -7,7 +7,8 @@
             CheckTempBans();
             CheckTempMutes();
             CheckTempInvsibles();
-            //Log.Info("Elapsed", ConsoleColor.Cyan);
+            CheckBackup();
+            Log.Info("Elapsed", ConsoleColor.Cyan);
             Timer!.Change(Shared.Config.ClockInterval, -1);
         }, null, 1000, -1);
         public static void Start()
@@ -22,7 +23,7 @@
             {
                 if (TempBan.EndDateTime is null) return;
 
-                if (DateTime.Compare(DateTime.UtcNow, TempBan.EndDateTime.Value) >= 0)
+                if (DateTime.UtcNow >= TempBan.EndDateTime.Value)
                     await Commands.Moderator.Unban(TempBan);
             }
         }
@@ -33,7 +34,7 @@
             {
                 if (TempMute.EndDateTime is null) return;
 
-                if (DateTime.Compare(DateTime.UtcNow, TempMute.EndDateTime.Value) >= 0)
+                if (DateTime.UtcNow >= TempMute.EndDateTime.Value)
                     await Commands.Moderator.Unmute(await Discord.GetMember(TempMute.User.ID), TempMute);
             }
         }
@@ -44,9 +45,17 @@
             {
                 if (TempInvisible.EndDateTime is null) return;
 
-                if (DateTime.Compare(DateTime.UtcNow, TempInvisible.EndDateTime.Value) >= 0)
+                if (DateTime.UtcNow >= TempInvisible.EndDateTime.Value)
                     await Commands.Moderator.Uninvisible(await Discord.GetMember(TempInvisible.User.ID), TempInvisible);
             }
+        }
+
+        public static async void CheckBackup()
+        {
+            if ((DateTime.UtcNow.Hour, DateTime.UtcNow.Minute) == (Shared.Config.Backup.Time.Hours, Shared.Config.Backup.Time.Minutes) && Shared.DiscordClient != null)
+                await Discord.GetChannel(Shared.Config.Backup.Channel).SendMessageAsync(Commands.Moderator.Backup(true) is Stream Database ?
+                    new DiscordMessageBuilder().WithEmbed(Discord.Builder("Here u have yo shit backuped")).WithFile("Database.zip", Database) :
+                    new DiscordMessageBuilder().WithEmbed(Discord.Builder("Yo i couldnt backup yo shit!!", Color: Shared.Config.Colors.Error)));
         }
     }
 }
